@@ -14,9 +14,32 @@ paths:
   cache_dir: .cache             # LLM response cache (gitignored)
 
 corpus:
-  # Refined in Step 2. Coherent topic -> harder, more realistic questions.
-  arxiv_query: 'cat:cs.CL AND (abs:"retrieval-augmented" OR abs:"retrieval augmented")'
-  max_papers: 150
+  # Single topic on purpose: similar-but-wrong passages ("hard negatives")
+  # make retrieval non-trivial, so configurations actually differ.
+  arxiv_query: '(cat:cs.CL OR cat:cs.IR) AND abs:"retrieval augmented generation"'
+  date_from: "202301010000"    # arXiv format YYYYMMDDHHMM
+  date_to: "202512312359"
+  max_papers: 150              # accepted papers (seeds count toward this)
+  candidate_pool: 250          # relevance-ranked results fetched before filtering
+  api_page_size: 50            # results per arXiv API request (smaller = gentler)
+  api_delay_s: 5.0             # pause between arXiv API requests
+  max_pages: 30                # longer papers would dominate the chunk count
+  max_pdf_mb: 10
+  min_text_chars: 500          # first 2 pages must have extractable text
+  download_delay_s: 3.0        # arXiv asks for ~3 s between automated requests
+  seed_ids:                    # foundational papers, always included
+    - "2005.11401"   # RAG (Lewis et al.)
+    - "2004.04906"   # DPR
+    - "2002.08909"   # REALM
+    - "2007.01282"   # Fusion-in-Decoder
+    - "2112.04426"   # RETRO
+    - "2004.12832"   # ColBERT
+    - "2104.08663"   # BEIR benchmark
+    - "2212.10496"   # HyDE
+    - "2307.03172"   # Lost in the Middle
+    - "2310.11511"   # Self-RAG
+    - "2309.15217"   # RAGAS
+    - "2312.10997"   # RAG survey (Gao et al.)
 
 chunking:
   chunk_size: 512      # tokens per chunk
